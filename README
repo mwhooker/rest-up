@@ -1,0 +1,14 @@
+
+
+Data model of a REST endpoint:
+
+{
+    'endpoint': 'resource/:id',
+    'description': 'The thing.',
+    'methods': ['GET', 'PUT', 'POST', 'DELETE'],
+    'parameters': ['sort'],
+    'data': {
+        'name': 'example',
+        'dob': '1986-10-24'
+    }
+}
