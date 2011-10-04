@@ -8,6 +8,7 @@ app = express.createServer(express.logger())
 
 app.configure(() ->
     app.use express.compiler(src: path.dirname(__dirname) + '/static', enable: ['less'])
+    app.use express.compiler(src: path.dirname(__dirname) + '/static', enable: ['coffeescript'])
 
     app.set('view engine', 'jade')
     app.set 'views', path.dirname(__dirname) + '/views'
