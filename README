@@ -3,12 +3,30 @@
 Data model of a REST endpoint:
 
 {
-    'endpoint': 'resource/:id',
+    'path': 'resource/:id',
     'description': 'The thing.',
-    'methods': ['GET', 'PUT', 'POST', 'DELETE'],
-    'parameters': ['sort'],
-    'data': {
-        'name': 'example',
-        'dob': '1986-10-24'
+    #'methods': ['GET', 'PUT', 'POST', 'DELETE'],
+    #'parameters': ['sort'],
+    'get': {
+        'body': {
+            'name': 'example',
+            'dob': '1986-10-24'
+        },
+        'code': 200
+    },
+    'put': {
+        'code': 200
+    },
+    'delete': {
+        'code': 200
+    },
+    'post': {
+        'code': 201,
+        'headers': {
+            'location': '/blah/1'
+        },
+        'body': {
+            'foo': 'bar'
+        }
     }
 }

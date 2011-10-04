@@ -41,10 +41,10 @@ tastes = app.resource 'resource',
         res.send(405)
 
     new: (req, res) ->
-        res.send(405)
+        res.render 'resource/new.jade'
 
     create: (req, res) ->
-        res.send(405)
+        res.send(req.body)
 
     show: (req, res) ->
         res.send(405)

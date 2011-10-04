@@ -1,0 +1,41 @@
+h1 New Resource
+script(type="text/plain", id="header_tpl")
+  li
+    label
+      |Header:
+      input(type="text", name="
+script(type="text/plain", id="response_tpl")
+  #XXmethodXX
+    h2 XXmethodXX
+    ul
+      li
+        label
+          |Status Code:
+          input(type="text", name="XXmethodXX_code")
+      li
+        label
+          |Body:
+          textarea(name="XXmethodXX_body")
+script(type="application/javascript")
+  |$(document).ready(function() {
+  | _.templateSettings = {
+  |    interpolate : /XX([^X{2}]+?)XX/g
+  | };
+  | _.each(['get', 'put', 'post', 'delete'], function(method) {
+  |      $('#input').append(
+  |          _.template($('#response_tpl').text(), {method: method})
+  |      );
+  | });
+  |});
+form(name="resource", action='/resource', method="POST")
+  #input
+    ul
+      li
+        label
+          |Path: 
+          input(type="text", name="path")
+      li
+        label(for="description")
+          |Description
+          textarea(name="description")
+  input(type="submit")
