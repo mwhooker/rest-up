@@ -60,7 +60,6 @@ getUserIdCookieless = (req) ->
     id += req.headers['user-agent']
     return shasum.update(id).digest('hex')
 
-
 class Resource
     constructor: (@userId) ->
 
@@ -71,6 +70,12 @@ class Resource
             data = @_getMethodData(body, method)
             if data?
                 @_saveMethod(data, method, newId)
+
+    get: (id, method) ->
+        key = id + ':' + method
+        code: 200
+        body: foo:
+            'bar'
 
     _saveMethod: (data, method, id) ->
         key = id + ':' + method
@@ -110,6 +115,27 @@ tastes = app.resource 'resource',
 
     destroy: (req, res) ->
         res.send(405)
+
+
+app.get '/resource/:rid/:path', (req, res) ->
+    resource = new Resource(getUserIdCookieless(req))
+    data = resource.get(req.params.rid, 'GET')
+    res.send(data.body, data.code)
+
+app.put '/resource/:rid/:path', (req, res) ->
+    resource = new Resource(getUserIdCookieless(req))
+    data = resource.get(req.params.rid, 'PUT')
+    res.send(data.body, data.code)
+
+app.post '/resource/:rid/:path', (req, res) ->
+    resource = new Resource(getUserIdCookieless(req))
+    data = resource.get(req.params.rid, 'POST')
+    res.send(data.body, data.code)
+
+app.delete '/resource/:rid/:path', (req, res) ->
+    resource = new Resource(getUserIdCookieless(req))
+    data = resource.get(req.params.rid, 'DELETE')
+    res.send(data.body, data.code)
 
 port = parseInt(process.env.PORT || 8000)
 app.listen port
