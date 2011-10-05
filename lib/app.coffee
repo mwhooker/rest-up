@@ -48,9 +48,21 @@ if app.set('redis').auth
 app.get "/", (req, res) ->
     res.render('index')
 
+
+crypto = require('crypto')
+
+getUserIdCookieless = (req) ->
+    shasum = crypto.createHash('sha1')
+
+    id = req.connection.remoteAddress + ':'
+    id += req.headers['user-agent']
+    return shasum.update(id).digest('hex')
+
+
 tastes = app.resource 'resource',
 
     index: (req, res) ->
+        console.log getUserId(req)
         res.send(405)
 
     new: (req, res) ->
