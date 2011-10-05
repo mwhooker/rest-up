@@ -3,6 +3,7 @@ less = require 'less'
 express = require 'express'
 resource = require 'express-resource'
 path = require 'path'
+redis = require 'redis'
 
 app = express.createServer(express.logger())
 
@@ -24,6 +25,11 @@ app.configure('development', () ->
     app.use express.static(path.dirname(__dirname) + '/static')
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }))
 
+    app.set('redis', {
+        port: 6379
+        host: 'localhost'
+    })
+
     app.settings['view options']['_debug'] = true
 )
 
@@ -32,6 +38,12 @@ app.configure('production', () ->
     app.use express.static(path.dirname(__dirname) + '/static', { maxAge: oneYear })
     app.use(express.errorHandler())
 )
+
+redisClient = redis.createClient(
+    app.set('redis').port, app.set('redis').host)
+
+if app.set('redis').auth
+    redisClient.auth(app.set('redis').auth)
 
 app.get "/", (req, res) ->
     res.render('index')

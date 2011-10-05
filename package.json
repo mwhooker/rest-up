@@ -7,6 +7,7 @@
     "underscore": "1.1.5",
     "coffee-script": "1.0.1",
     "express-resource": ">=0.2.2",
-    "less": "1.0.41"
+    "less": "1.0.41",
+    "redis": ">=0.5.9"
   }
 }
