@@ -5,6 +5,7 @@ resource = require 'express-resource'
 path = require 'path'
 redis = require 'redis'
 uuid = require 'node-uuid'
+_ = require 'underscore'
 
 
 app = express.createServer(express.logger())
@@ -105,6 +106,13 @@ class Resource
                     data.body = body[key]
             else
                 data[newKey] = body[key]
+
+        if data? and data.header_name? and data.header_value?
+            headers = {}
+            for i in [0...data.header_name.length]
+                   headers[data.header_name[i]] = data.header_value[i]
+            data.headers = headers
+
         return data
 
 
@@ -127,32 +135,33 @@ tastes = app.resource 'resource',
     destroy: (req, res) ->
         res.send(405)
 
+
 app.get '/resource/:rid/:path', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'index', (data) ->
         console.log data
-        res.send(data.body, parseInt data.code)
+        res.send(data.body, data.headers, parseInt data.code)
     )
 
 app.get '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'get')
-    res.send(data.body, data.code)
+    res.send(data.body, data.headers, parseInt data.code)
 
 app.put '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'put')
-    res.send(data.body, data.code)
+    res.send(data.body, data.headers, parseInt data.code)
 
 app.post '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'post')
-    res.send(data.body, data.code)
+    res.send(data.body, data.headers, parseInt data.code)
 
 app.delete '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'delete')
-    res.send(data.body, data.code)
+    res.send(data.body, data.headers, parseInt data.code)
 
 port = parseInt(process.env.PORT || 8000)
 app.listen port
