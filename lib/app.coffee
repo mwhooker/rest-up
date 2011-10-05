@@ -99,8 +99,10 @@ class Resource
             data = {} if not data?
             newKey = key.split('_')[1..].join '_'
             if newKey == 'body'
-                console.log body[key]
-                data.body = JSON.parse(body[key])
+                try
+                    data.body = JSON.parse(body[key])
+                catch ex
+                    data.body = body[key]
             else
                 data[newKey] = body[key]
         return data
