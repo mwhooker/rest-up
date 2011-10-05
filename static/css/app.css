@@ -1,0 +1,9 @@
+#forkme {
+    float: left;
+}
+    #forkme img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        border: 0;
+    }
