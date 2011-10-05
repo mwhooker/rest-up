@@ -82,6 +82,7 @@ class Resource
         console.log key + '->' + JSON.stringify data
 
     _saveDescription: (path, description, id) ->
+        # TODO: path can't contain /s
         key = @userId + ':' + id
         # add to userId set
         # set description and path @ key
@@ -116,23 +117,27 @@ tastes = app.resource 'resource',
     destroy: (req, res) ->
         res.send(405)
 
-
 app.get '/resource/:rid/:path', (req, res) ->
+    resource = new Resource(getUserIdCookieless(req))
+    data = resource.get(req.params.rid, 'INDEX')
+    res.send(data.body, data.code)
+
+app.get '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'GET')
     res.send(data.body, data.code)
 
-app.put '/resource/:rid/:path', (req, res) ->
+app.put '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'PUT')
     res.send(data.body, data.code)
 
-app.post '/resource/:rid/:path', (req, res) ->
+app.post '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'POST')
     res.send(data.body, data.code)
 
-app.delete '/resource/:rid/:path', (req, res) ->
+app.delete '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'DELETE')
     res.send(data.body, data.code)
