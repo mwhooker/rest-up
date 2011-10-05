@@ -3,11 +3,12 @@ script(type="text/plain", id="header_tpl")
   li
     label
       |Header:
-      input(type="text", name="XXmethodXX_header_name_XXnXX")
+      input(type="text", name="XXmethodXX_header_name")
   li
     label
       |Value:
-      input(type="text", name="XXmethodXX_header_value_XXnXX")
+      input(type="text", name="XXmethodXX_header_value")
+
 script(type="text/plain", id="response_tpl")
   #XXmethodXX
     h2 XXmethodXX
@@ -19,7 +20,11 @@ script(type="text/plain", id="response_tpl")
       li
         label
           |Body:
-          textarea(name="XXmethodXX_body")
+          textarea(nme="XXmethodXX_body")
+      li
+        a(onclick="javascript:addHeader('XXmethodXX');")
+          |Add Header
+
 form(name="resource", action='/resource', method="POST")
   #input
     ul
