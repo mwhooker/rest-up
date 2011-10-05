@@ -24,7 +24,7 @@ app.configure('development', () ->
     app.use express.static(path.dirname(__dirname) + '/static')
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }))
 
-    app.settings['view options']['p_debug'] = true
+    app.settings['view options']['_debug'] = true
 )
 
 app.configure('production', () ->

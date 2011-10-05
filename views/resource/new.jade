@@ -36,4 +36,24 @@ form(name="resource", action='/resource', method="POST")
         label(for="description")
           |Description
           textarea(name="description")
+      li
+        #index
+          a(onclick="javascript:addResponse('index');")
+            |index
+      li
+        #get
+          a(onclick="javascript:addResponse('get');")
+            |get
+      li
+        #put
+          a(onclick="javascript:addResponse('put');")
+            |put
+      li
+        #post
+          a(onclick="javascript:addResponse('post');")
+            |post
+      li
+        #delete
+          a(onclick="javascript:addResponse('delete');")
+            |delete
   input(type="submit")
