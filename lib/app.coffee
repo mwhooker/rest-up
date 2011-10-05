@@ -71,6 +71,7 @@ class Resource
             data = @_getMethodData(body, method)
             if data?
                 @_saveMethod(data, method, newId)
+        return newId
 
     get: (id, method, cb) ->
         key = id + ':' + method
@@ -81,7 +82,6 @@ class Resource
 
     _saveMethod: (data, method, id) ->
         key = id + ':' + method
-        console.log key
         redisClient.set key, JSON.stringify data
 
     _saveDescription: (path, description, id) ->
@@ -126,8 +126,8 @@ tastes = app.resource 'resource',
 
     create: (req, res) ->
         resource = new Resource(getUserIdCookieless(req))
-        resource.create req.body
-        res.send(req.body)
+        id = resource.create req.body
+        res.send 201, Location: '/resource/' + id + '/' + req.body.path
 
     show: (req, res) ->
         res.send(405)
