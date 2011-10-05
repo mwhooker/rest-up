@@ -71,30 +71,38 @@ class Resource
             if data?
                 @_saveMethod(data, method, newId)
 
-    get: (id, method) ->
+    get: (id, method, cb) ->
         key = id + ':' + method
-        code: 200
-        body: foo:
-            'bar'
+        redisClient.get key, (err, data) ->
+            if err?
+                console.log err
+            cb JSON.parse data
 
     _saveMethod: (data, method, id) ->
         key = id + ':' + method
-        console.log key + '->' + JSON.stringify data
+        console.log key
+        redisClient.set key, JSON.stringify data
 
     _saveDescription: (path, description, id) ->
         # TODO: path can't contain /s
         key = @userId + ':' + id
         # add to userId set
+        redisClient.sadd(@userId, key)
         # set description and path @ key
+        redisClient.set key, JSON.stringify(
+            path: path
+            description: description
+        )
 
     _getMethodData: (body, method) ->
         for key, value of body when key.split('_')[0] == method
             data = {} if not data?
-            new_key = key.split('_')[1..].join '_'
-            if key == 'body'
-                data.body = JSON.parse(body.body)
+            newKey = key.split('_')[1..].join '_'
+            if newKey == 'body'
+                console.log body[key]
+                data.body = JSON.parse(body[key])
             else
-                data[new_key] = body[key]
+                data[newKey] = body[key]
         return data
 
 
@@ -119,27 +127,29 @@ tastes = app.resource 'resource',
 
 app.get '/resource/:rid/:path', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'INDEX')
-    res.send(data.body, data.code)
+    data = resource.get(req.params.rid, 'index', (data) ->
+        console.log data
+        res.send(data.body, parseInt data.code)
+    )
 
 app.get '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'GET')
+    data = resource.get(req.params.rid, 'get')
     res.send(data.body, data.code)
 
 app.put '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'PUT')
+    data = resource.get(req.params.rid, 'put')
     res.send(data.body, data.code)
 
 app.post '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'POST')
+    data = resource.get(req.params.rid, 'post')
     res.send(data.body, data.code)
 
 app.delete '/resource/:rid/:path/:id', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'DELETE')
+    data = resource.get(req.params.rid, 'delete')
     res.send(data.body, data.code)
 
 port = parseInt(process.env.PORT || 8000)
