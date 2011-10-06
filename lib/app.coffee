@@ -84,6 +84,11 @@ class Resource
                 console.log err
             cb JSON.parse data
 
+    getDescription: (id, cb) ->
+        key = @userId + ':' + id
+        redisClient.get key, (err, data) ->
+            cb JSON.parse data
+
     _saveMethod: (data, method, id) ->
         key = id + ':' + method
         redisClient.set key, JSON.stringify data
@@ -120,7 +125,8 @@ class Resource
         return data
 
 
-tastes = app.resource 'resource',
+# TODO: stick user ID in URL
+resources = app.resource 'resource',
 
     index: (req, res) ->
         resource = new Resource(getUserIdCookieless(req))
@@ -136,7 +142,9 @@ tastes = app.resource 'resource',
         res.send 201, Location: '/resource/' + id + '/' + req.body.path
 
     show: (req, res) ->
-        res.send(405)
+        resource = new Resource(getUserIdCookieless(req))
+        resource.getDescription req.params.resource, (data) ->
+            res.send data
 
     destroy: (req, res) ->
         res.send(405)
@@ -145,7 +153,6 @@ tastes = app.resource 'resource',
 app.get '/resource/:rid/:path', (req, res) ->
     resource = new Resource(getUserIdCookieless(req))
     data = resource.get(req.params.rid, 'index', (data) ->
-        console.log data
         res.send(data.body, data.headers, parseInt data.code)
     )
 
