@@ -73,6 +73,10 @@ class Resource
                 @_saveMethod(data, method, newId)
         return newId
 
+    getAll: (cb) ->
+        redisClient.smembers @userId, (err, members) ->
+            cb((member.split(':')[1] for member in members))
+
     get: (id, method, cb) ->
         key = id + ':' + method
         redisClient.get key, (err, data) ->
@@ -119,7 +123,9 @@ class Resource
 tastes = app.resource 'resource',
 
     index: (req, res) ->
-        res.send(405)
+        resource = new Resource(getUserIdCookieless(req))
+        resource.getAll (members) ->
+            res.send members
 
     new: (req, res) ->
         res.render 'resource/new.jade'
