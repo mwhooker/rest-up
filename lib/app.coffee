@@ -62,6 +62,12 @@ getUserIdCookieless = (req) ->
     id += req.headers['user-agent']
     return shasum.update(id).digest('hex')
 
+parseJson = (input) ->
+    try
+        JSON.parse input
+    catch ex
+        input
+
 class Resource
 
     @methods: ['get', 'put', 'post', 'delete', 'index']
@@ -76,6 +82,7 @@ class Resource
             if data?
                 @_saveMethod(data, method, newId)
         return newId
+
 
     delete: (rid, cb) ->
 
@@ -101,7 +108,6 @@ class Resource
                     cb err
                 else
                     cb null, true
-
 
 
     getAll: (cb) ->
@@ -149,10 +155,7 @@ class Resource
             data = {} if not data?
             newKey = key.split('_')[1..].join '_'
             if newKey == 'body'
-                try
-                    data.body = JSON.parse(body[key])
-                catch ex
-                    data.body = body[key]
+                data.body = JSON.parse body[key]
             else if newKey == 'code'
                 data.code = parseInt body[key]
             else
@@ -220,26 +223,25 @@ resources = app.resource 'resource',
                 res.send 200
 
 
-app.get '/resource/:rid/:path', (req, res) ->
-    data = Resource.get(req.params.rid, 'index', (data) ->
-        res.send(data.body, data.headers, parseInt data.code)
-    )
+handle = (method) ->
+    (req, res) ->
+        data = Resource.get req.params.rid, method, (data) ->
+            if not data?
+                res.send 404
+            else
+                if _.isNumber data.body
+                    body = data.body + ''
+                else
+                    body = data.body
+                res.send(body, data.headers, data.code)
 
-app.get '/resource/:rid/:path/:id', (req, res) ->
-    data = Resource.get(req.params.rid, 'get')
-    res.send(data.body, data.headers, parseInt data.code)
 
-app.put '/resource/:rid/:path/:id', (req, res) ->
-    data = Resource.get(req.params.rid, 'put')
-    res.send(data.body, data.headers, parseInt data.code)
+app.get '/resource/:rid/:path', handle 'index'
+app.post '/resource/:rid/:path', handle 'post'
 
-app.post '/resource/:rid/:path/:id', (req, res) ->
-    data = Resource.get(req.params.rid, 'post')
-    res.send(data.body, data.headers, parseInt data.code)
-
-app.delete '/resource/:rid/:path/:id', (req, res) ->
-    data = Resource.get(req.params.rid, 'delete')
-    res.send(data.body, data.headers, parseInt data.code)
+app.get '/resource/:rid/:path/:id', handle 'get'
+app.put '/resource/:rid/:path/:id', handle 'put'
+app.delete '/resource/:rid/:path/:id', handle 'delete'
 
 port = parseInt(process.env.PORT || 8000)
 app.listen port
