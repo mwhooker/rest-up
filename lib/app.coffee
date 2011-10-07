@@ -229,11 +229,7 @@ handle = (method) ->
             if not data?
                 res.send 404
             else
-                if _.isNumber data.body
-                    body = data.body + ''
-                else
-                    body = data.body
-                res.send(body, data.headers, data.code)
+                res.json(data.body, data.headers, data.code)
 
 
 app.get '/resource/:rid/:path', handle 'index'
