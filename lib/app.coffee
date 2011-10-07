@@ -55,6 +55,7 @@ crypto = require('crypto')
 
 # temporary session hack
 getUserIdCookieless = (req) ->
+    return "testKey"
     shasum = crypto.createHash('sha1')
 
     id = req.connection.remoteAddress + ':'
@@ -62,12 +63,15 @@ getUserIdCookieless = (req) ->
     return shasum.update(id).digest('hex')
 
 class Resource
+
+    @methods: ['get', 'put', 'post', 'delete', 'index']
+
     constructor: (@userId) ->
 
     create: (body) ->
         newId = uuid()
         @_saveDescription(body.path, body.description, newId)
-        for method in ['get', 'put', 'post', 'delete', 'index']
+        for method in Resource.methods
             data = @_getMethodData(body, method)
             if data?
                 @_saveMethod(data, method, newId)
@@ -77,7 +81,16 @@ class Resource
         redisClient.smembers @userId, (err, members) ->
             cb((member.split(':')[1] for member in members))
 
-    get: (id, method, cb) ->
+    @getAllMethods: (id, cb) ->
+        keys = (id + ':' + method for method in Resource.methods)
+        redisClient.mget keys, (err, results) ->
+            resObj = {}
+            for lr in _.zip Resource.methods, results
+                if lr[1]?
+                    resObj[lr[0]] = JSON.parse lr[1]
+            cb(resObj)
+
+    @get: (id, method, cb) ->
         key = id + ':' + method
         redisClient.get key, (err, data) ->
             if err?
@@ -142,38 +155,50 @@ resources = app.resource 'resource',
         res.send 201, Location: '/resource/' + id + '/' + req.body.path
 
     show: (req, res) ->
-        resource = new Resource(getUserIdCookieless(req))
-        resource.getDescription req.params.resource, (data) ->
-            res.send data
+        acc = 0
+        data = {}
+        done = (results) ->
+            if _.isArray results
+                for r in results
+                    data = _.extend data, r
+            else
+                data = _.extend(data, results)
+            acc += 1
+            if acc == 2
+                res.send data
+
+        resource = new Resource getUserIdCookieless req
+        resource.getDescription req.params.resource, (results) ->
+            done(results)
+
+        Resource.getAllMethods req.params.resource, (results) ->
+            done(results)
 
     destroy: (req, res) ->
         res.send(405)
 
+# TODO: fix headers -> dict combination. assumes it's array.
+
 
 app.get '/resource/:rid/:path', (req, res) ->
-    resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'index', (data) ->
+    data = Resource.get(req.params.rid, 'index', (data) ->
         res.send(data.body, data.headers, parseInt data.code)
     )
 
 app.get '/resource/:rid/:path/:id', (req, res) ->
-    resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'get')
+    data = Resource.get(req.params.rid, 'get')
     res.send(data.body, data.headers, parseInt data.code)
 
 app.put '/resource/:rid/:path/:id', (req, res) ->
-    resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'put')
+    data = Resource.get(req.params.rid, 'put')
     res.send(data.body, data.headers, parseInt data.code)
 
 app.post '/resource/:rid/:path/:id', (req, res) ->
-    resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'post')
+    data = Resource.get(req.params.rid, 'post')
     res.send(data.body, data.headers, parseInt data.code)
 
 app.delete '/resource/:rid/:path/:id', (req, res) ->
-    resource = new Resource(getUserIdCookieless(req))
-    data = resource.get(req.params.rid, 'delete')
+    data = Resource.get(req.params.rid, 'delete')
     res.send(data.body, data.headers, parseInt data.code)
 
 port = parseInt(process.env.PORT || 8000)
