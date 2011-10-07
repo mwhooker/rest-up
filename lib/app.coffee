@@ -19,8 +19,12 @@ app.configure(() ->
     app.use(express.methodOverride())
     app.use(express.bodyParser())
     app.use(express.cookieParser())
+
+    # TODO: use req.session w/ hmac. we don't really want a session
+    # (in memory store, 1 day exp)
     secret = process.env.COOKIE_SECRET || 'foobar'
     app.use(express.session(secret: secret))
+
     app.use(app.router)
     app.settings['view options'] = {
       _debug: false
