@@ -77,6 +77,33 @@ class Resource
                 @_saveMethod(data, method, newId)
         return newId
 
+    delete: (rid, cb) ->
+
+        deleteMethods = (rid, cb) ->
+            keys = (rid + ':' + method for method in Resource.methods)
+            redisClient.del keys, (err, ret) ->
+                if err?
+                    cb err
+                    return
+                cb null, ret
+
+
+        redisClient.srem @userId, rid, (err, ret) ->
+            if err?
+                cb err
+                return
+            if ret == 0
+                cb null, false
+                return
+
+            deleteMethods rid, (err, deleted) ->
+                if err?
+                    cb err
+                else
+                    cb null, true
+
+
+
     getAll: (cb) ->
         redisClient.smembers @userId, (err, members) ->
             cb((member.split(':')[1] for member in members))
@@ -181,7 +208,14 @@ resources = app.resource 'resource',
             done(results)
 
     destroy: (req, res) ->
-        res.send(405)
+        resource = new Resource getUserIdCookieless req
+        resource.delete req.params.resource, (err, suc) ->
+            if err?
+                res.send 500
+            else if not suc
+                res.send 404
+            else
+                res.send 200
 
 
 app.get '/resource/:rid/:path', (req, res) ->
