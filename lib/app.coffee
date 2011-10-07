@@ -18,6 +18,9 @@ app.configure(() ->
     app.set 'views', path.dirname(__dirname) + '/views'
     app.use(express.methodOverride())
     app.use(express.bodyParser())
+    app.use(express.cookieParser())
+    secret = process.env.COOKIE_SECRET || 'foobar'
+    app.use(express.session(secret: secret))
     app.use(app.router)
     app.settings['view options'] = {
       _debug: false
@@ -51,16 +54,10 @@ if app.set('redis').auth
 app.get "/", (req, res) ->
     res.render('index')
 
-crypto = require('crypto')
-
-# temporary session hack
-getUserIdCookieless = (req) ->
-    return "testKey"
-    shasum = crypto.createHash('sha1')
-
-    id = req.connection.remoteAddress + ':'
-    id += req.headers['user-agent']
-    return shasum.update(id).digest('hex')
+getUserId = (req) ->
+    if not req.session.id?
+        req.session.id = uuid()
+    return req.session.id
 
 parseJson = (input) ->
     try
@@ -180,7 +177,7 @@ class Resource
 resources = app.resource 'resource',
 
     index: (req, res) ->
-        resource = new Resource(getUserIdCookieless(req))
+        resource = new Resource(getUserId(req))
         resource.getAll (members) ->
             res.send members
 
@@ -188,7 +185,7 @@ resources = app.resource 'resource',
         res.render 'resource/new.jade'
 
     create: (req, res) ->
-        resource = new Resource(getUserIdCookieless(req))
+        resource = new Resource(getUserId(req))
         id = resource.create req.body
         res.send 201, Location: '/resource/' + id
 
@@ -205,7 +202,7 @@ resources = app.resource 'resource',
             if acc == 2
                 res.send data
 
-        resource = new Resource getUserIdCookieless req
+        resource = new Resource getUserId req
         resource.getDescription req.params.resource, (results) ->
             done(results)
 
@@ -213,7 +210,7 @@ resources = app.resource 'resource',
             done(results)
 
     destroy: (req, res) ->
-        resource = new Resource getUserIdCookieless req
+        resource = new Resource getUserId req
         resource.delete req.params.resource, (err, suc) ->
             if err?
                 res.send 500
