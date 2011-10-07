@@ -1,0 +1,6 @@
+h1 Resources
+  ul
+    each member in members
+      li
+        a(href="/resource/#{member.id}", alt="#{member.description}")
+          /#{member.path}

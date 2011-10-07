@@ -59,6 +59,7 @@ app.get "/", (req, res) ->
     res.render('index')
 
 getUserId = (req) ->
+    return 'testKey'
     if not req.session.id?
         req.session.id = uuid()
     return req.session.id
@@ -113,7 +114,13 @@ class Resource
 
     getAll: (cb) ->
         redisClient.smembers @userId, (err, members) ->
-            cb((member.split(':')[1] for member in members))
+            if err?
+                console.log err
+            redisClient.mget members, (err, descs) ->
+                if err?
+                    console.log err
+                ids = (member.split(':')[1] for member in members)
+                cb ((_.extend JSON.parse(desc), id: id) for [id, desc] in (_.zip ids, descs))
 
     @getAllMethods: (id, cb) ->
         keys = (id + ':' + method for method in Resource.methods)
@@ -183,7 +190,13 @@ resources = app.resource 'resource',
     index: (req, res) ->
         resource = new Resource(getUserId(req))
         resource.getAll (members) ->
-            res.send members
+            if req.accepts 'application/json'
+                res.send members
+            else if req.accepts 'html'
+                console.log members
+                res.render 'resource/index.jade', members: members
+            else
+                res.send 415
 
     new: (req, res) ->
         res.render 'resource/new.jade'
