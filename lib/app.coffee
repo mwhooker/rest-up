@@ -157,7 +157,7 @@ resources = app.resource 'resource',
     create: (req, res) ->
         resource = new Resource(getUserIdCookieless(req))
         id = resource.create req.body
-        res.send 201, Location: '/resource/' + id + '/' + req.body.path
+        res.send 201, Location: '/resource/' + id
 
     show: (req, res) ->
         acc = 0
