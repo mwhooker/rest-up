@@ -131,8 +131,13 @@ class Resource
 
         if data? and data.header_name? and data.header_value?
             headers = {}
-            for i in [0...data.header_name.length]
-                   headers[data.header_name[i]] = data.header_value[i]
+            if _.isArray data.header_name
+                for i in [0...data.header_name.length]
+                       headers[data.header_name[i]] = data.header_value[i]
+            else
+                headers[data.header_name] = data.header_value
+            delete data.header_name
+            delete data.header_value
             data.headers = headers
 
         return data
