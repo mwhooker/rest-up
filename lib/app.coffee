@@ -153,6 +153,8 @@ class Resource
                     data.body = JSON.parse(body[key])
                 catch ex
                     data.body = body[key]
+            else if newKey == 'code'
+                data.code = parseInt body[key]
             else
                 data[newKey] = body[key]
 
