@@ -107,7 +107,7 @@ class Resource
         redisClient.set key, JSON.stringify data
 
     _saveDescription: (path, description, id) ->
-        # TODO: path can't contain /s
+        # TODO: path can't contain slashes
         key = @userId + ':' + id
         # add to userId set
         redisClient.sadd(@userId, key)
@@ -130,10 +130,11 @@ class Resource
                 data[newKey] = body[key]
 
         if data? and data.header_name? and data.header_value?
+            # TODO: validate every header value has a key in the frontend.
             headers = {}
-            if _.isArray data.header_name
-                for i in [0...data.header_name.length]
-                       headers[data.header_name[i]] = data.header_value[i]
+            if _.isArray data.header_name and _.isArray data.header_value
+                for lr in _.zip data.header_name, data.header_value
+                    headers[lr[0]] = lr[1]
             else
                 headers[data.header_name] = data.header_value
             delete data.header_name
@@ -181,8 +182,6 @@ resources = app.resource 'resource',
 
     destroy: (req, res) ->
         res.send(405)
-
-# TODO: fix headers -> dict combination. assumes it's array.
 
 
 app.get '/resource/:rid/:path', (req, res) ->
