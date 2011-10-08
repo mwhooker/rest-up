@@ -191,12 +191,12 @@ resources = app.resource 'resource',
 
     index: (req, res) ->
         resource = new Resource(getUserId(req))
-        resource.getAll (members) ->
+        resource.getAll (resources) ->
             if req.accepts 'application/json'
-                res.send members
+                res.send resources
             else if req.accepts 'html'
-                console.log members
-                res.render 'resource/index.jade', members: members
+                console.log resources
+                res.render 'resource/index.jade', resources: resources
             else
                 res.send 415
 

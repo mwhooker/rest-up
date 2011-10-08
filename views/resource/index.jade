@@ -1,6 +1,6 @@
 h1 Resources
   ul
-    each member in members
+    each resource in resources
       li
-        a(href="/resource/#{member.id}", alt="#{member.description}")
-          /#{member.path}
+        a(href="/resource/#{resource.id}", alt="#{resource.description}")
+          /#{resource.path}
