@@ -1,6 +1,6 @@
 h1 Resources
-  ul
-    each resource in resources
-      li
-        a(href="/resource/#{resource.id}", alt="#{resource.description}")
-          /#{resource.path}
+ul
+  each resource in resources
+    li
+      a(href="/resource/#{resource.id}", alt="#{resource.description}")
+        /#{resource.path}
