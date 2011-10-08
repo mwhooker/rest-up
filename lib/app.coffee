@@ -83,7 +83,7 @@ class Resource
             data = @_getMethodData(body, method)
             if data?
                 @_saveMethod(data, method, newId)
-        return newId
+        newId
 
 
     delete: (rid, cb) ->
@@ -204,7 +204,7 @@ resources = app.resource 'resource',
     create: (req, res) ->
         resource = new Resource(getUserId(req))
         id = resource.create req.body
-        res.send 201, Location: '/resource/' + id
+        res.send 303, Location: '/resource/' + id
 
     show: (req, res) ->
         acc = 0
