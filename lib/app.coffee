@@ -120,6 +120,7 @@ class Resource
                 if err?
                     console.log err
                 ids = (member.split(':')[1] for member in members)
+                # TODO: clean this shit up.
                 cb ((_.extend JSON.parse(desc), id: id) for [id, desc] in (_.zip ids, descs))
 
     @getAllMethods: (id, cb) ->
@@ -149,6 +150,7 @@ class Resource
 
     _saveDescription: (path, description, id) ->
         # TODO: path can't contain slashes
+        # TODO: path/title inconsistencies
         key = @userId + ':' + id
         # add to userId set
         redisClient.sadd(@userId, key)
@@ -184,7 +186,7 @@ class Resource
         return data
 
 
-# TODO: stick user ID in URL
+# TODO: stick user ID in URL (?)
 resources = app.resource 'resource',
 
     index: (req, res) ->
@@ -217,7 +219,12 @@ resources = app.resource 'resource',
                 data = _.extend(data, results)
             acc += 1
             if acc == 2
-                res.send data
+                if req.accepts 'application/json'
+                    res.send data
+                else if req.accepts 'html'
+                    res.render 'resource/show.jade', resource: data
+                else
+                    res.send 415
 
         resource = new Resource getUserId req
         resource.getDescription req.params.resource, (results) ->
@@ -237,6 +244,7 @@ resources = app.resource 'resource',
                 res.send 200
 
 
+#TODO: remove X-Powered-By
 handle = (method) ->
     (req, res) ->
         data = Resource.get req.params.rid, method, (data) ->
