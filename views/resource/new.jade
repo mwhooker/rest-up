@@ -1,58 +1,59 @@
 h1 New Resource
 script(type="text/plain", id="header_tpl")
-  li
-    label
-      |Header:
-      input(type="text", name="XXmethodXX_header_name")
-  li
-    label
-      |Value:
-      input(type="text", name="XXmethodXX_header_value")
+  div(class="header")
+    label Header:
+    br
+    input(type="text", name="XXmethodXX_header_name")
+  div
+    label Value:
+    br
+    input(type="text", name="XXmethodXX_header_value")
 
 script(type="text/plain", id="response_tpl")
   #XXmethodXX
-    h2 XXmethodXX
-    ul
-      li
-        label
-          |Status Code:
-          input(type="text", name="XXmethodXX_code")
-      li
-        label
-          |Body:
-          textarea(name="XXmethodXX_body")
-      li
+    fieldset
+      legend XXmethodXX
+      p
+        label Status Code:
+        br
+        input(type="text", name="XXmethodXX_code")
+      p
+        label Body:
+        br
+        textarea(name="XXmethodXX_body")
+      p
         a(onclick="javascript:addHeader('XXmethodXX');")
           |Add Header
 
 form(name="resource", action='/resource', method="POST")
   #input
-    ul
-      li
-        label
-          |Title
-          input(type="text", name="path")
-      li
-        label(for="description")
-          |Description
-          textarea(name="description")
-      li
+    fieldset
+      legend Create a new resource
+      p
+        label Title
+        br
+        input(type="text", name="path")
+      p
+        label(for="description") Description
+        br
+        textarea(name="description")
+      p
         #index
           a(onclick="javascript:addResponse('index');")
             |index
-      li
+      p
         #get
           a(onclick="javascript:addResponse('get');")
             |get
-      li
+      p
         #put
           a(onclick="javascript:addResponse('put');")
             |put
-      li
+      p
         #post
           a(onclick="javascript:addResponse('post');")
             |post
-      li
+      p
         #delete
           a(onclick="javascript:addResponse('delete');")
             |delete

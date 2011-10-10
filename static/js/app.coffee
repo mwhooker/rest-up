@@ -1,5 +1,5 @@
 window.addHeader = (method) ->
-    $('#' + method).append _.template $('#header_tpl').text(), method: method
+    $('#' + method + ' fieldset').append _.template $('#header_tpl').text(), method: method
 
 window.addResponse = (method) ->
     methodForm = _.template $('#response_tpl').text(), method: method
