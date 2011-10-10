@@ -174,9 +174,10 @@ class Resource
         if data? and data.header_name? and data.header_value?
             # TODO: validate every header value has a key in the frontend.
             headers = {}
-            if _.isArray data.header_name and _.isArray data.header_value
+            if _.isArray(data.header_name) and (_.isArray data.header_value)
                 for lr in _.zip data.header_name, data.header_value
-                    headers[lr[0]] = lr[1]
+                    if lr[0]
+                        headers[lr[0]] = lr[1]
             else
                 headers[data.header_name] = data.header_value
             delete data.header_name
