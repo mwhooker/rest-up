@@ -8,7 +8,11 @@
         border: 0;
     }
 
-.header {
+input.header {
     float: left;
     margin: 0 10px 0 0;
+}
+
+input.body {
+    font-family: "courier";
 }

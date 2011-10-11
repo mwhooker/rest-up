@@ -3,11 +3,11 @@ script(type="text/plain", id="header_tpl")
   div(class="header")
     label Header:
     br
-    input(type="text", name="XXmethodXX_header_name")
+    input(type="text", name="XXmethodXX_header_name", class="text")
   div
     label Value:
     br
-    input(type="text", name="XXmethodXX_header_value")
+    input(type="text", name="XXmethodXX_header_value", class="text")
 
 script(type="text/plain", id="response_tpl")
   #XXmethodXX
@@ -16,11 +16,11 @@ script(type="text/plain", id="response_tpl")
       p
         label Status Code:
         br
-        input(type="text", name="XXmethodXX_code")
+        input(type="text", name="XXmethodXX_code", class="text")
       p
         label Body:
         br
-        textarea(name="XXmethodXX_body")
+        textarea(name="XXmethodXX_body", class="text body")
       p
         a(onclick="javascript:addHeader('XXmethodXX');")
           |Add Header
@@ -32,11 +32,11 @@ form(name="resource", action='/resource', method="POST")
       p
         label Title
         br
-        input(type="text", name="path")
+        input(type="text", name="path", class="title")
       p
         label(for="description") Description
         br
-        textarea(name="description")
+        textarea(name="description", class="text")
       p
         #index
           a(onclick="javascript:addResponse('index');")
