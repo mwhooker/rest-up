@@ -150,7 +150,6 @@ class Resource
 
     _saveDescription: (path, description, id) ->
         # TODO: path can't contain slashes
-        # TODO: path/title inconsistencies
         key = @userId + ':' + id
         # add to userId set
         redisClient.sadd(@userId, key)
@@ -161,6 +160,7 @@ class Resource
         )
 
     _getMethodData: (body, method) ->
+        # TODO: must be an easier way to parse out form data.
         for key, value of body when key.split('_')[0] == method
             if not body[key]
                 continue
@@ -208,6 +208,7 @@ resources = app.resource 'resource',
 
     create: (req, res) ->
         resource = new Resource(getUserId(req))
+        console.log req.body
         id = resource.create req.body
         res.send 303, Location: '/resource/' + id
 
