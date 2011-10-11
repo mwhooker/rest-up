@@ -162,6 +162,8 @@ class Resource
 
     _getMethodData: (body, method) ->
         for key, value of body when key.split('_')[0] == method
+            if not body[key]
+                continue
             data = {} if not data?
             newKey = key.split('_')[1..].join '_'
             if newKey == 'body'
